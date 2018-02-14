@@ -1,5 +1,5 @@
 /*
-  EXCERCISE 1: Looping a triangle
+  EXERCISE 1: Looping a triangle
 
   Write a loop that makes seven calls to console.log to output the following triangle:
 
@@ -19,7 +19,7 @@ for (let i = 0; i < 7; i++) {
 }
 
 /*
-  EXCERCISE 2: FizzBuzz
+  EXERCISE 2: FizzBuzz
 
   Write a program that uses console.log to print all the numbers from 1 to 100, with two exceptions. 
   For numbers divisible by 3, print "Fizz" instead of the number, and for numbers divisible by 5 
@@ -42,7 +42,7 @@ for (let i = 1; i < 101; i++) {
 }
 
 /*
-  EXCERCISE 3: Chess board
+  EXERCISE 3: Chess board
 
   Write a program that creates a string that represents an 8×8 grid, using newline characters to 
   separate lines. At each position of the grid there is either a space or a "#" character. The 

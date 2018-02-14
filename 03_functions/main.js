@@ -1,5 +1,5 @@
 /*
-  EXCERCISE 1: Minimum
+  EXERCISE 1: Minimum
 
   The previous chapter introduced the standard function Math.min that returns its smallest argument. 
   We can do that ourselves now. Write a function min that takes two arguments and returns their 
@@ -18,7 +18,7 @@ console.log(min(0, 10)); // 0
 console.log(min(0, -10)); // -10
 
 /*
-  EXCERCISE 2: Recursion
+  EXERCISE 2: Recursion
 
   We’ve seen that % (the remainder operator) can be used to test whether a number is even or odd by 
   using % 2 to check whether it’s divisible by two. Here’s another way to define whether a positive 
@@ -54,7 +54,7 @@ console.log(isEven(-26));
 // → true
 
 /*
-  EXCERCISE 3: Bean counting
+  EXERCISE 3: Bean counting
 
   You can get the Nth character, or letter, from a string by writing "string"[N]. The returned value 
   will be a string containing only one character (for example, "b"). The first character has position 
