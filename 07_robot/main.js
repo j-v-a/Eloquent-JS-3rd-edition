@@ -177,7 +177,10 @@ function routeRobot(state, memory) {
 	if (memory.length == 0) {
 		memory = mailRoute;
 	}
-	return { direction: memory[0], memory: memory.slice(1) };
+	return {
+		direction: memory[0],
+		memory: memory.slice(1)
+	};
 }
 
 // It’ll take a maximum of 26 turns (twice the 13-step route), but usually less.
@@ -196,7 +199,12 @@ function findRoute(graph, from, to) {
 	// Therefore, the function keeps a work list. This is an array of places that should be explored
 	// next, along with the route that got us there. It starts with just the start position and an
 	// empty route.
-	let work = [{ at: from, route: [] }];
+	let work = [
+		{
+			at: from,
+			route: []
+		}
+	];
 	// The search then operates by taking the next item in the list, and exploring that, which means
 	// that all roads going from that place are looked at. If one of them is the goal, a route is
 	// returned. Otherwise, if we haven’t looked at this place before, a new item is added to the list.
@@ -211,14 +219,18 @@ function findRoute(graph, from, to) {
 		for (let place of graph[at]) {
 			if (place == to) return route.concat(place);
 			if (!work.some(w => w.at == place)) {
-				work.push({ at: place, route: route.concat(place) });
+				work.push({
+					at: place,
+					route: route.concat(place)
+				});
 			}
 		}
+		// Our code doesn’t handle the situation where there are no more work items on the work list,
+		// because we know that our graph is connected, meaning that every location can be reached from
+		// all other locations. We’ll always be able to find a route between two points, and the search
+		// can’t fail.
 	}
 }
-// Our code doesn’t handle the situation where there are no more work items on the work list, because
-// we know that our graph is connected, meaning that every location can be reached from all other
-// locations. We’ll always be able to find a route between two points, and the search can’t fail.
 
 // This robot uses its memory value as a list of directions to move in, just like the route-following
 // robot. Whenever that list is empty, it has to figure out what to do next. It takes the first
@@ -234,7 +246,10 @@ function goalOrientedRobot({ place, parcels }, route) {
 			route = findRoute(roadGraph, place, parcel.address);
 		}
 	}
-	return { direction: route[0], memory: route.slice(1) };
+	return {
+		direction: route[0],
+		memory: route.slice(1)
+	};
 }
 
 // Test, usually in ~ 16 turns, sligthly better that routeRobot but not optimal.
@@ -254,6 +269,7 @@ runRobot(VillageState.random(), goalOrientedRobot, []);
 
 	For the sake of fairness, make sure that you give each task to both robots, rather than generating 
 	different tasks per robot.
+
 */
 
 // function to only get times run
@@ -296,17 +312,103 @@ compareRobots(routeRobot, [], goalOrientedRobot, []);
 
 	If you solved the previous exercise, you might want to use your compareRobots function to verify 
 	whether you improved the robot.
+
 */
+
 function yourRobot({ place, parcels }, route) {
 	if (route.length == 0) {
-		let parcel = parcels[0];
-		if (parcel.place != place) {
-			route = findRoute(roadGraph, place, parcel.place);
-		} else {
-			route = findRoute(roadGraph, place, parcel.address);
+		// instead of just checking one parcel, create routes for all parcels
+		// also mark pick-ups to be able to prefer these later
+		let routes = parcels.map(parcel => {
+			if (parcel.place != place) {
+				return {
+					route: findRoute(roadGraph, place, parcel.place),
+					pickUp: true
+				};
+			} else {
+				return {
+					route: findRoute(roadGraph, place, parcel.address),
+					pickUp: false
+				};
+			}
+		});
+		// score all routes and determine which route scores the best and return that one
+		function score({ route, pickUp }) {
+			// a pick-up gives a bonus of a half route segment, route length counts negatively
+			return (pickUp ? 0.5 : 0) - route.length;
 		}
+
+		// Get the best route:
+		route = routes.reduce((a, b) => (score(a) > score(b) ? a : b)).route;
 	}
-	return { direction: route[0], memory: route.slice(1) };
+
+	return {
+		direction: route[0],
+		memory: route.slice(1)
+	};
 }
 
 compareRobots(yourRobot, [], goalOrientedRobot, []);
+
+/****************************************************************************************************
+
+	EXERCISE 3: Persistent group
+
+	Most data structures provided in a standard JavaScript environment aren’t very well suited for 
+	persistent use. Arrays have slice and concat methods, which allow us to easily create new arrays 
+	without damaging the old one. But Set, for example, has no methods for creating a new set with an 
+	item added or removed.
+
+	Write a new class PGroup, similar to the Group class from Chapter 6, which stores a set of values. 
+	Like Group, it has add, delete, and has methods.
+
+	Its add method, however, should return a new PGroup instance with the given member added, and leave 
+	the old one unchanged. Similarly, delete creates a new instance without a member.
+
+	The class should work for keys of any type, not just strings. It does not have to be efficient when 
+	used with large amounts of keys.
+
+	The constructor shouldn’t be part of the class’ interface (though you’ll definitely want to use it 
+	internally). Instead, there is an empty instance, PGroup.empty, that can be used as a starting 
+	value.
+
+	Why do you only need one PGroup.empty value, rather than having a function that creates a new, 
+	empty map every time?
+
+*/
+
+class PGroup {
+	constructor(members) {
+		this.members = members;
+	}
+	add(value) {
+		if (this.has(value)) {
+			return this;
+		} else {
+			return new PGroup(this.members.concat([value]));
+		}
+	}
+	delete(value) {
+		if (!this.has(value)) {
+			return this;
+		} else {
+			return new PGroup(this.members.filter(m => m !== value));
+		}
+	}
+	has(value) {
+		return this.members.includes(value);
+	}
+}
+
+PGroup.empty = new PGroup([]);
+
+let a = PGroup.empty.add('a');
+let ab = a.add('b');
+let b = ab.delete('a');
+
+console.log(b.has('b'));
+// → true
+console.log(a.has('b'));
+// → false
+console.log(b.has('a'));
+// → false
